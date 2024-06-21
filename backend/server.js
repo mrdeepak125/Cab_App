@@ -29,10 +29,10 @@ db.once('open', function() {
 });
 
 // Import models
-const Booking = require('./models/Booking');
-const Contact = require('./models/Contact');
-const Car = require('./models/Car');
-const Admin = require('./models/Admin'); // New admin model
+const Booking = require('../models/Booking');
+const Contact = require('../models/Contact');
+const Car = require('../models/Car');
+const Admin = require('../models/Admin'); // New admin model
 
 // Session setup
 app.use(session({
