@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="/style.css">
+    <style>
+        /* Add your CSS styles here for the popup form */
+        .popup-form {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+        }
+        .popup-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+        .car-card {
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="nav">
+            <i class="uil uil-bars navOpenBtn"></i>
+            <a href="#" class="logo"><img src="/img/taxi/240_F_330115718_1k76oiECn62QjtimmXHsEjjgEnJKBK73-removebg-preview.png" style="height: 80px;"><span>App name</span></a>
+            <ul class="nav-links">
+                <li><a href="/admin">Admin Dashboard</a></li>
+                <li><a href="/admin/pending-bookings">Pending Bookings</a></li>
+                <li><a href="/admin/pending-complaints">Pending Complaints</a></li>
+                <li><a href="/admin/upload-car-picture">Upload Car Picture</a></li>
+            </ul>
+        <nav>
+    </header>
+    <main>
+        <section>
+            <h2>Manage Cars</h2>
+            <button id="addCarButton">Add Car</button>
+            <div class="popup-overlay"></div>
+            <div class="popup-form" id="addCarForm">
+                <form id="carForm" enctype="multipart/form-data">
+                    <label for="carCompany">Car Company:</label>
+                    <input type="text" id="carCompany" name="carCompany" required>
+                    <label for="carModel">Car Model:</label>
+                    <input type="text" id="carModel" name="carModel" required>
+                    <label for="carYear">Car Year:</label>
+                    <input type="number" id="carYear" name="carYear" required>
+                    <label for="carFuelType">Fuel Type:</label>
+                    <select id="carFuelType" name="carFuelType" required>
+                        <option value="Diesel">Diesel</option>
+                        <option value="LPG">LPG</option>
+                        <option value="CNG">CNG</option>
+                        <option value="Petrol">Petrol</option>
+                        <option value="Electric">Electric</option>
+                    </select>
+                    <label for="carSeater">Seater:</label>
+                    <input type="number" id="carSeater" name="carSeater" required>
+                    <label for="carImage">Car Image:</label>
+                    <input type="file" id="carImage" name="carImage" required>
+                    <img id="carImagePreview" style="display: none;" width="100" alt="Car Image Preview">
+                    <button type="submit">Add Car</button>
+                </form>
+                <button id="closeFormButton">Close</button>
+            </div>
+            <div id="carList"></div>
+        </section>
+    </main>
+    <script>
+        document.getElementById('addCarButton').addEventListener('click', () => {
+            document.querySelector('.popup-overlay').style.display = 'block';
+            document.getElementById('addCarForm').style.display = 'block';
+        });
+
+        document.getElementById('closeFormButton').addEventListener('click', () => {
+            document.querySelector('.popup-overlay').style.display = 'none';
+            document.getElementById('addCarForm').style.display = 'none';
+        });
+
+        document.getElementById('carImage').addEventListener('change', (event) => {
+            const reader = new FileReader();
+            reader.onload = () => {
+                document.getElementById('carImagePreview').src = reader.result;
+                document.getElementById('carImagePreview').style.display = 'block';
+            };
+            reader.readAsDataURL(event.target.files[0]);
+        });
+
+        document.getElementById('carForm').addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            const formData = new FormData(event.target);
+
+            const response = await fetch('/admin/add-car', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (response.ok) {
+                alert('Car added successfully');
+                document.getElementById('carForm').reset();
+                document.getElementById('carImagePreview').style.display = 'none';
+                loadCars();
+            } else {
+                alert('Error adding car');
+            }
+        });
+
+        async function loadCars() {
+            const response = await fetch('/admin/cars');
+            const cars = await response.json();
+            const carList = document.getElementById('carList');
+            carList.innerHTML = '';
+
+            cars.forEach(car => {
+                const carCard = document.createElement('div');
+                carCard.className = 'car-card';
+                carCard.innerHTML = `
+                    <img src="${car.carImage}" width="100">
+                    <p>Company: ${car.carCompany}</p>
+                    <p>Model: ${car.carModel}</p>
+                    <p>Year: ${car.carYear}</p>
+                    <p>Fuel Type: ${car.carFuelType}</p>
+                    <p>Seater: ${car.carSeater}</p>
+                    <p>Status: ${car.carStatus}</p>
+                    <button class="statusButton" data-id="${car._id}" data-status="available">Mark as Available</button>
+                    <button class="statusButton" data-id="${car._id}" data-status="not-available">Mark as Not Available</button>
+                `;
+                carList.appendChild(carCard);
+            });
+
+            document.querySelectorAll('.statusButton').forEach(button => {
+                button.addEventListener('click', async (event) => {
+                    const carId = event.target.getAttribute('data-id');
+                    const status = event.target.getAttribute('data-status');
+
+                    const response = await fetch(`/admin/update-car-status/${carId}`, {
+                        method: 'PATCH',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ carStatus: status })
+                    });
+
+                    if (response.ok) {
+                        loadCars();
+                    } else {
+                        alert('Error updating car status');
+                    }
+                });
+            });
+        }
+
+        loadCars();
+    </script>
+</body>
+</html>

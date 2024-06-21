@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pending Bookings and Complaints</title>
+    <link rel="stylesheet" href="/style.css">
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th,
+        td {
+            padding: 8px;
+            text-align: left;
+            border: 1px solid #000000;
+        }
+
+        .btn-complete {
+            color: white;
+            background-color: green;
+            padding: 5px 10px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-cancel {
+            color: white;
+            background-color: red;
+            padding: 5px 10px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-resolve {
+            color: white;
+            background-color: blue;
+            padding: 5px 10px;
+            border: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <nav class="nav">
+            <img class="navOpenBtn" src="/img/c/list.svg" alt="">
+            <a href="#" class="logo"><img
+                    src="/img/taxi/240_F_330115718_1k76oiECn62QjtimmXHsEjjgEnJKBK73-removebg-preview.png"
+                    style="height: 80px;"><span>App name</span></a>
+            <ul class="nav-links">
+                <li><a href="/admin">Admin Dashboard</a></li>
+                <li><a href="/admin/pending-bookings">Pending bookings</a></li>
+                <li><a href="/admin/upload-car-picture">Upload Car Picture</a></li>
+            </ul>
+            <nav>
+    </header>
+    <main>
+        <section>
+            <h2>Pending Complaints</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Message</th>
+                        <th>Status</th>
+                        <th>Resolve Issue</th>
+                    </tr>
+                </thead>
+                <tbody id="complaints-list"></tbody>
+            </table>
+        </section>
+    </main>
+    <script>
+        async function fetchComplaints() {
+            try {
+                const response = await fetch('/admin/pending-complaints/data');
+                const complaints = await response.json();
+                const complaintsList = document.getElementById('complaints-list');
+
+
+                complaints.forEach(complaint => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                <td>${complaint.name}</td>
+                <td>${complaint.email}</td>
+                <td>${complaint.message}</td>
+                <td>${complaint.status}</td>
+                <td>
+                    <button class="btn-resolve" onclick="resolveIssue('${complaint._id}', '${complaint.email}', '${complaint.message}', this)">Resolve</button>
+                </td>
+            `;
+
+                    if (complaint.status === 'complete') {
+                        row.querySelector('.btn-resolve').textContent = 'Solved'; // Change button text to 'Solved'
+                        row.querySelector('.btn-resolve').style.backgroundColor = 'green'; // Set green color for resolved complaints
+                    }
+
+                    complaintsList.appendChild(row);
+                });
+            } catch (err) {
+                console.error('Error fetching complaints:', err);
+            }
+        }
+
+        // function resolveIssue(id, email, message) {
+        //     const subject = `Regarding your complaint: ${message}`;
+        //     const body = `Dear ${email},\n\nWe have resolved your complaint. Thank you for bringing this to our attention.\n\nBest regards,\nApp name Team`;
+        //     const mailtoLink = `mailto:${encodeURIComponent(email)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+
+        //     // Open mail client
+        //     window.location.href = mailtoLink;
+
+        //     // Update status after opening mail client
+        //     updateStatus(id, 'complete');
+        // }
+
+        async function resolveIssue(id, email, message, button) {
+    const subject = `Regarding your complaint: ${message}`;
+    const body = `Dear ${email},\n\nWe have resolved your complaint. Thank you for bringing this to our attention.\n\nBest regards,\nApp name Team`;
+    const mailtoLink = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+
+    try {
+        const response = await fetch(`/admin/update-complaint-status/${id}`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ status: 'complete' })
+        });
+
+        if (response.ok) {
+            // window.open(`mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`);
+            window.location.href = mailtoLink; // Open default email client
+            button.textContent = 'Solved'; // Change button text to 'Solved'
+            button.style.backgroundColor = 'green'; // Set green color for resolved button
+        } else {
+            alert('Failed to update complaint status');
+        }
+    } catch (err) {
+        console.error('Error resolving complaint:', err);
+        alert('Error resolving complaint');
+    }
+}
+
+        fetchComplaints();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Us</title>
+    <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" />
+    <link rel="stylesheet" href="/style.css">
+</head>
+
+<body>
+    <div class="pre-loader">
+        <div class="pre-loader-1">
+            <a href="#" class="pre-logo">
+                <img src="/img/taxi/240_F_330115718_1k76oiECn62QjtimmXHsEjjgEnJKBK73-removebg-preview.png"
+                    style="height: 80px;">
+                <span>App name</span>
+            </a>
+        </div>
+    </div>
+    <div id="content" style="display: none;">
+        <nav class="nav">
+            <i class="uil uil-bars navOpenBtn"></i>
+            <a href="#" class="logo"><img
+                    src="/img/taxi/240_F_330115718_1k76oiECn62QjtimmXHsEjjgEnJKBK73-removebg-preview.png"
+                    style="height: 80px;"><span>App name</span></a>
+            <ul class="nav-links">
+                <i class="uil uil-times navCloseBtn"></i>
+                <li><a href="/">Home</a></li>
+                <li><a href="/service.html">Services</a></li>
+                <li><a href="#">About Us</a></li>
+                <li><a href="#">Contact Us</a></li>
+            </ul>
+            <i class="uil uil-search search-icon" id="searchIcon"></i>
+            <div class="search-box">
+                <i class="uil uil-search search-icon"></i>
+                <div class="container">
+                    <h2>Book a Cab</h2>
+                    <form action="/book-cab" method="post">
+                        <div class="form-group">
+                            <label for="from-location">From Location</label>
+                            <input type="text" id="from-location" name="from-location"
+                                placeholder="Enter pickup location" list="cities">
+                        </div>
+                        <div class="form-group">
+                            <label for="to-location">To Location</label>
+                            <input type="text" id="to-location" name="to-location" placeholder="Enter drop-off location"
+                                list="cities">
+                        </div>
+                        <div class="form-group">
+                            <label for="pickup-date">Pickup Date</label>
+                            <input type="date" id="pickup-date" name="pickup-date">
+                        </div>
+                        <div class="form-group">
+                            <label for="pickup-time">Pickup Time</label>
+                            <input type="time" id="pickup-time" name="pickup-time">
+                        </div>
+                        <button type="submit">Search Cab</button>
+                    </form>
+                    <datalist id="cities">
+                        <option value="Mumbai">
+                        <option value="Delhi">
+                        <option value="Bangalore">
+                        <option value="Hyderabad">
+                        <option value="Ahmedabad">
+                        <option value="Chennai">
+                        <option value="Kolkata">
+                        <option value="Surat">
+                        <option value="Pune">
+                        <option value="Jaipur">
+                            <!-- Add more cities as needed -->
+                    </datalist>
+                </div>
+            </div>
+        </nav>
+        <main>
+            <div class="popup" id="popup">
+                <div class="message" id="popup-message"></div>
+                <button class="close-btn" onclick="closePopup()">Close</button>
+            </div>
+            <div class="center">
+                <div class="container">
+
+                    <h1 class="title">Contact Us 📲</h1>
+                    <form action="/contact" method="post">
+                    <div class="form form__1">
+                        <label for="name" class="form__label">Full name</label>
+                        <input type="text" class="form__input" placeholder="" name="name" id="name" required>
+                    </div>
+
+                    <div class="form form__2">
+                        <label for="email" class="form__label">Email address</label>
+                        <input type="email" class="form__input" placeholder="" name="email" id="email" required>
+                    </div>
+
+                    <div class="form form__3">
+                        <label for="message" class="form__label">Your message</label>
+                        <input type="text" class="form__input" placeholder="" id="message" name="message" required>
+                    </div>
+
+                    <button class="form__btn">
+                        <span class="form__btn--visible">
+                            <p>Submit</p>
+                            <i class="material-icons">arrow_forward</i>
+                        </span>
+                        <span class="form__btn--invisible">Message sent!</span>
+                    </button>
+                    </form>
+                    <div class="container-mail">
+                        <div class="mail">
+                            <div class="mail__back"></div>
+                            <div class="mail__top"></div>
+                            <div class="mail__letter">
+                                <div class="mail__letter-square">
+                                </div>
+                                <div class="mail__letter-lines">
+                                </div>
+                            </div>
+                            <div class="mail__left"></div>
+                            <div class="mail__right"></div>
+                            <div class="mail__bottom"></div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </main>
+        <!-- Footer -->
+        <footer>
+            <div class="footer-content">
+                <p>&copy; 2024 App name. All rights reserved.</p>
+                <ul>
+                    <li><a href="privacy.html">Privacy Policy</a></li>
+                    <li><a href="terms.html">Terms of Service</a></li>
+                </ul>
+            </div>
+        </footer>
+    </div>
+
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js'></script>
+    <script>
+        $('.form__btn').click(function () {
+            $('.mail__letter').toggleClass('move');
+            $('.mail__top').toggleClass('closed');
+            $('.form__btn--invisible').toggleClass('visible');
+            $('.form__btn--visible').toggleClass('invisible');
+        });
+
+        $('input').focus(function () {
+            $(this).parent().addClass('active');
+            $('input').focusout(function () {
+                if ($(this).val() == '') {
+                    $(this).parent().removeClass('active');
+                } else {
+                    $(this).parent().addClass('active');
+                }
+            })
+        });
+    </script>
+    <script src="/script.js" defer></script>
+</body>
+
+</html>

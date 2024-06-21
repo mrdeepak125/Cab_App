@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Car Travel Booking Service</title>
+    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="https://unicons.iconscout.com/release/v4.0.0/css/line.css" />
+</head>
+<body>
+    <div class="pre-loader">
+        <div class="pre-loader-1">
+            <a href="#" class="pre-logo">
+                <img src="/img/taxi/240_F_330115718_1k76oiECn62QjtimmXHsEjjgEnJKBK73-removebg-preview.png"
+                    style="height: 80px;">
+                <span>App name</span>
+            </a>
+        </div>
+    </div>
+    <div id="content" style="display: none;">
+    <!-- Navigation Bar -->
+    <nav class="nav">
+        <img class="navOpenBtn" src="/img/c/list.svg" alt="">
+        <a href="#" class="logo"><img
+                src="/img/taxi/240_F_330115718_1k76oiECn62QjtimmXHsEjjgEnJKBK73-removebg-preview.png"
+                style="height: 80px;"><span>App name</span></a>
+        <ul class="nav-links">
+            <i class="uil uil-times navCloseBtn"></i>
+            <li><a href="/">Home</a></li>
+            <li><a href="#">Services</a></li>
+            <li><a href="#">About Us</a></li>
+            <li><a href="/contact.html">Contact Us</a></li>
+        </ul>
+        <i class="uil uil-search search-icon" id="searchIcon"></i>
+        <div class="search-box">
+            <i class="uil uil-search search-icon"></i>
+            <div class="container-bookCab">
+                <h2>Book a Cab</h2>
+                <form action="/book-cab" method="post">
+                    <div class="form-group">
+                        <label for="from-location">From Location</label>
+                        <input type="text" id="from-location" name="from-location"
+                            placeholder="Enter pickup location" list="cities">
+                    </div>
+                    <div class="form-group">
+                        <label for="to-location">To Location</label>
+                        <input type="text" id="to-location" name="to-location" placeholder="Enter drop-off location"
+                            list="cities">
+                    </div>
+                    <div class="form-group">
+                        <label for="pickup-date">Pickup Date</label>
+                        <input type="date" id="pickup-date" name="pickup-date">
+                    </div>
+                    <div class="form-group">
+                        <label for="pickup-time">Pickup Time</label>
+                        <input type="time" id="pickup-time" name="pickup-time">
+                    </div>
+                    <button type="submit">Search Cab</button>
+                </form>
+                <datalist id="cities">
+                    <option value="Mumbai">
+                    <option value="Delhi">
+                    <option value="Bangalore">
+                    <option value="Hyderabad">
+                    <option value="Ahmedabad">
+                    <option value="Chennai">
+                    <option value="Kolkata">
+                    <option value="Surat">
+                    <option value="Pune">
+                    <option value="Jaipur">
+                        <!-- Add more cities as needed -->
+                </datalist>
+            </div>
+        </div>
+    </nav>
+    <!-- Booking Form -->
+     <main>
+    <section class="booking-form">
+        <h2>Book Your Ride</h2>
+        <form action="/submit-booking" method="POST">
+            <label for="pickup-location">Pickup Location:</label>
+            <input type="text" id="pickup-location" name="pickup-location" required>
+
+            <label for="dropoff-location">Dropoff Location:</label>
+            <input type="text" id="dropoff-location" name="dropoff-location" required>
+
+            <label for="pickup-date">Pickup Date:</label>
+            <input type="date" id="pickup-date" name="pickup-date" required>
+
+            <label for="pickup-time">Pickup Time:</label>
+            <input type="time" id="pickup-time" name="pickup-time" required>
+
+            <label for="car-type">Car Type:</label>
+            <select id="car-type" name="car-type" required>
+                <option value="sedan">Sedan</option>
+                <option value="suv">SUV</option>
+                <option value="luxury">Luxury</option>
+            </select>
+
+            <button type="submit">Book Now</button>
+        </form>
+    </section>
+
+    <!-- Services Offered -->
+    <section class="services">
+        <h2>Our Services</h2>
+        <div class="service-item">
+            <h3>City Rides</h3>
+            <p>Enjoy comfortable city rides with our range of cars suited for all your needs.</p>
+        </div>
+        <div class="service-item">
+            <h3>Airport Transfers</h3>
+            <p>Reliable and timely airport transfers ensuring you never miss a flight.</p>
+        </div>
+        <div class="service-item">
+            <h3>Outstation Rides</h3>
+            <p>Plan your weekend getaways with our outstation ride services available round the clock.</p>
+        </div>
+        <div class="service-item">
+            <h3>Corporate Travel</h3>
+            <p>Professional and efficient travel solutions for your business needs.</p>
+        </div>
+    </section>
+     </main>
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <p>&copy; 2024 App name. All rights reserved.</p>
+            <ul>
+                <li><a href="privacy.html">Privacy Policy</a></li>
+                <li><a href="terms.html">Terms of Service</a></li>
+            </ul>
+        </div>
+    </footer>
+    </div>
+<script src="/script.js" defer></script>
+</body>
+</html>

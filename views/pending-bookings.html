@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pending Bookings</title>
+    <link rel="stylesheet" href="/style.css">
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border: 1px solid #000000;
+        }
+        .btn-complete {
+            color: white;
+            background-color: green;
+            padding: 5px 10px;
+            border: none;
+            cursor: pointer;
+        }
+        .btn-cancel {
+            color: white;
+            background-color: red;
+            padding: 5px 10px;
+            border: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="nav">
+            <i class="uil uil-bars navOpenBtn"></i>
+            <a href="#" class="logo"><img
+                    src="/img/taxi/240_F_330115718_1k76oiECn62QjtimmXHsEjjgEnJKBK73-removebg-preview.png"
+                    style="height: 80px;"><span>App name</span></a>
+            <ul class="nav-links">
+                    <li><a href="/admin">Admin Dashboard</a></li>
+                    <li><a href="/admin/pending-complaints">Pending Complaints</a></li>
+                    <li><a href="/admin/upload-car-picture">Upload Car Picture</a></li>
+            </ul>
+        <nav>
+    </header>
+    <main>
+        <section>
+            <h2>Pending Bookings</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>From</th>
+                        <th>To</th>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="bookings-list"></tbody>
+            </table>
+        </section>
+    </main>
+    <script>
+        async function fetchBookings() {
+            try {
+                const response = await fetch('/admin/pending-bookings/data');
+                const bookings = await response.json();
+                const bookingsList = document.getElementById('bookings-list');
+
+                bookingsList.innerHTML = ''; // Clear existing content
+
+                bookings.forEach(booking => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${booking.fromLocation}</td>
+                        <td>${booking.toLocation}</td>
+                        <td>${booking.pickupDate}</td>
+                        <td>${booking.pickupTime}</td>
+                        <td>
+                            <button class="btn-complete" onclick="updateStatus('${booking._id}', 'complete')">Complete</button>
+                            <button class="btn-cancel" onclick="updateStatus('${booking._id}', 'cancel')">Cancel</button>
+                        </td>
+                    `;
+                    bookingsList.appendChild(row);
+                });
+            } catch (err) {
+                console.error('Error fetching bookings:', err);
+            }
+        }
+
+        async function updateStatus(id, status) {
+            try {
+                const response = await fetch(`/admin/update-booking-status/${id}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ status })
+                });
+
+                if (response.ok) {
+                    alert('Status updated successfully');
+                    fetchBookings(); // Refresh the bookings list
+                } else {
+                    alert('Failed to update status');
+                }
+            } catch (err) {
+                console.error('Error updating status:', err);
+            }
+        }
+
+        fetchBookings();
+    </script>
+</body>
+</html>
