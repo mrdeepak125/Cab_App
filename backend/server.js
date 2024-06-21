@@ -5,6 +5,7 @@ const multer = require('multer');
 const path = require('path');
 const session = require('express-session');
 const bcrypt = require('bcrypt');
+require('dotenv').config();
 
 const app = express();
 
@@ -13,10 +14,11 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 // Serve static files
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, '../public')));
 
 // MongoDB connection
-mongoose.connect('mongodb://localhost:27017/cabBookingDB', {
+const mongoDBURL = process.env.MONGODB_URL || 'mongodb://localhost:27017/cabBookingDB';
+mongoose.connect(mongoDBURL, {
   useNewUrlParser: true,
   useUnifiedTopology: true
 });
@@ -29,10 +31,10 @@ db.once('open', function() {
 });
 
 // Import models
-const Booking = require('../models/Booking');
-const Contact = require('../models/Contact');
-const Car = require('../models/Car');
-const Admin = require('../models/Admin'); // New admin model
+const Booking = require('./models/Booking');
+const Contact = require('./models/Contact');
+const Car = require('./models/Car');
+const Admin = require('./models/Admin'); // New admin model
 
 // Session setup
 app.use(session({
@@ -45,7 +47,7 @@ app.use(session({
 // Multer setup for file uploads
 const storage = multer.diskStorage({
   destination: function(req, file, cb) {
-    cb(null, 'public/uploads/');
+    cb(null, path.join(__dirname, '../public/uploads/'));
   },
   filename: function(req, file, cb) {
     cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname));
@@ -63,7 +65,7 @@ const requireLogin = (req, res, next) => {
 };
 
 app.get('/login', (req, res) => {
-  res.sendFile(path.join(__dirname, 'views', 'login.html'));
+  res.sendFile(path.join(__dirname, '../views', 'login.html'));
 });
 
 app.post('/login', async (req, res) => {
@@ -84,7 +86,7 @@ app.get('/logout', (req, res) => {
 });
 
 app.get('/admin', requireLogin, (req, res) => {
-  res.sendFile(path.join(__dirname, 'views', 'admin.html'));
+  res.sendFile(path.join(__dirname, '../views', 'admin.html'));
 });
 
 app.post('/admin/add-car', requireLogin, upload.single('carImage'), async (req, res) => {
@@ -140,7 +142,7 @@ app.patch('/admin/update-car-status/:id', requireLogin, async (req, res) => {
 });
 
 app.get('/admin/pending-bookings', requireLogin, (req, res) => {
-  res.sendFile(path.join(__dirname, 'views', 'pending-bookings.html'));
+  res.sendFile(path.join(__dirname, '../views', 'pending-bookings.html'));
 });
 
 app.get('/admin/pending-bookings/data', requireLogin, async (req, res) => {
@@ -153,7 +155,7 @@ app.get('/admin/pending-bookings/data', requireLogin, async (req, res) => {
 });
 
 app.get('/admin/pending-complaints', requireLogin, (req, res) => {
-  res.sendFile(path.join(__dirname, 'views', 'pending-complaints.html'));
+  res.sendFile(path.join(__dirname, '../views', 'pending-complaints.html'));
 });
 
 app.get('/admin/pending-complaints/data', requireLogin, async (req, res) => {
@@ -213,14 +215,14 @@ app.post('/contact', async (req, res) => {
 
   try {
     await newContact.save();
-    res.send('sends complant');
+    res.send('Complaint sent');
   } catch (err) {
     res.status(500).send('Error saving contact');
   }
 });
 
 app.get('/admin/upload-car-picture', requireLogin, (req, res) => {
-  res.sendFile(path.join(__dirname, 'views', 'upload-car-picture.html'));
+  res.sendFile(path.join(__dirname, '../views', 'upload-car-picture.html'));
 });
 
 app.post('/admin/upload-car-picture', requireLogin, upload.single('carPicture'), (req, res) => {
@@ -228,15 +230,15 @@ app.post('/admin/upload-car-picture', requireLogin, upload.single('carPicture'),
 });
 
 app.get('/contact.html', (req, res) => {
-  res.sendFile(path.join(__dirname, 'contact.html'));
+  res.sendFile(path.join(__dirname, '../contact.html'));
 });
 
 app.get('/service.html', (req, res) => {
-  res.sendFile(path.join(__dirname, 'service.html'));
+  res.sendFile(path.join(__dirname, '../service.html'));
 });
 
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'index.html'));
+  res.sendFile(path.join(__dirname, '../index.html'));
 });
 
 const PORT = process.env.PORT || 5000;
