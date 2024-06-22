@@ -24,17 +24,16 @@ mongoose.connect(mongoDBURL, {
 });
 
 const db = mongoose.connection;
-
 db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', function() {
   console.log('Connected to MongoDB');
 });
 
 // Import models
-const Booking = require('./models/Booking');
-const Contact = require('./models/Contact');
-const Car = require('./models/Car');
-const Admin = require('./models/Admin'); // New admin model
+const Booking = require('../models/Booking');
+const Contact = require('../models/Contact');
+const Car = require('../models/Car');
+const Admin = require('../models/Admin');
 
 // Session setup
 app.use(session({
@@ -70,13 +69,18 @@ app.get('/login', (req, res) => {
 
 app.post('/login', async (req, res) => {
   const { username, password } = req.body;
-  const admin = await Admin.findOne({ username });
+  try {
+    const admin = await Admin.findOne({ username });
 
-  if (admin && bcrypt.compareSync(password, admin.password)) {
-    req.session.userId = admin._id;
-    res.redirect('/admin');
-  } else {
-    res.status(401).send('Invalid credentials');
+    if (admin && bcrypt.compareSync(password, admin.password)) {
+      req.session.userId = admin._id;
+      res.redirect('/admin');
+    } else {
+      res.status(401).send('Invalid credentials');
+    }
+  } catch (err) {
+    console.error('Login error:', err);
+    res.status(500).send('Internal server error');
   }
 });
 
@@ -107,6 +111,7 @@ app.post('/admin/add-car', requireLogin, upload.single('carImage'), async (req, 
     await newCar.save();
     res.send('Car added successfully');
   } catch (err) {
+    console.error('Error adding car:', err);
     res.status(500).send('Error adding car');
   }
 });
@@ -116,6 +121,7 @@ app.get('/admin/cars', requireLogin, async (req, res) => {
     const cars = await Car.find();
     res.json(cars);
   } catch (err) {
+    console.error('Error fetching cars:', err);
     res.status(500).send('Error fetching cars');
   }
 });
@@ -137,6 +143,7 @@ app.patch('/admin/update-car-status/:id', requireLogin, async (req, res) => {
       res.status(404).send('Car not found');
     }
   } catch (err) {
+    console.error('Error updating car status:', err);
     res.status(500).send('Error updating car status');
   }
 });
@@ -150,6 +157,7 @@ app.get('/admin/pending-bookings/data', requireLogin, async (req, res) => {
     const bookings = await Booking.find({ status: 'pending' });
     res.json(bookings);
   } catch (err) {
+    console.error('Error fetching bookings:', err);
     res.status(500).send('Error fetching bookings');
   }
 });
@@ -202,6 +210,7 @@ app.post('/book-cab', async (req, res) => {
     await newBooking.save();
     res.send('Booking saved successfully');
   } catch (err) {
+    console.error('Error saving booking:', err);
     res.status(500).send('Error saving booking');
   }
 });
@@ -217,6 +226,7 @@ app.post('/contact', async (req, res) => {
     await newContact.save();
     res.send('Complaint sent');
   } catch (err) {
+    console.error('Error saving contact:', err);
     res.status(500).send('Error saving contact');
   }
 });

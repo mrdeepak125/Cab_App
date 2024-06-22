@@ -6,11 +6,15 @@ const adminSchema = new mongoose.Schema({
   password: { type: String, required: true }
 });
 
+// Hash the password before saving the admin
 adminSchema.pre('save', function(next) {
-  if (this.isModified('password') || this.isNew) {
-    this.password = bcrypt.hashSync(this.password, 10);
-  }
-  next();
+  const admin = this;
+  if (!admin.isModified('password')) return next();
+  bcrypt.hash(admin.password, 10, (err, hash) => {
+    if (err) return next(err);
+    admin.password = hash;
+    next();
+  });
 });
 
 const Admin = mongoose.model('Admin', adminSchema);
