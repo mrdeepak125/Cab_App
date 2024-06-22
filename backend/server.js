@@ -4,7 +4,7 @@ const bodyParser = require('body-parser');
 const multer = require('multer');
 const path = require('path');
 const session = require('express-session');
-const bcrypt = require('bcrypt');
+// const bcrypt = require('bcrypt');
 require('dotenv').config();
 
 const app = express();
@@ -67,22 +67,22 @@ app.get('/login', (req, res) => {
   res.sendFile(path.join(__dirname, '../views', 'login.html'));
 });
 
-app.post('/login', async (req, res) => {
-  const { username, password } = req.body;
-  try {
-    const admin = await Admin.findOne({ username });
+// app.post('/login', async (req, res) => {
+//   const { username, password } = req.body;
+//   try {
+//     const admin = await Admin.findOne({ username });
 
-    if (admin && bcrypt.compareSync(password, admin.password)) {
-      req.session.userId = admin._id;
-      res.redirect('/admin');
-    } else {
-      res.status(401).send('Invalid credentials');
-    }
-  } catch (err) {
-    console.error('Login error:', err);
-    res.status(500).send('Internal server error');
-  }
-});
+//     if (admin && bcrypt.compareSync(password, admin.password)) {
+//       req.session.userId = admin._id;
+//       res.redirect('/admin');
+//     } else {
+//       res.status(401).send('Invalid credentials');
+//     }
+//   } catch (err) {
+//     console.error('Login error:', err);
+//     res.status(500).send('Internal server error');
+//   }
+// });
 
 app.get('/logout', (req, res) => {
   req.session.destroy();
