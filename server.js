@@ -4,7 +4,6 @@ const bodyParser = require('body-parser');
 const multer = require('multer');
 const path = require('path');
 const session = require('express-session');
-const bcrypt = require('bcryptjs');
 require('dotenv').config();
 
 const app = express();
@@ -54,41 +53,12 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage: storage });
 
-// Secure the admin routes
-const requireLogin = (req, res, next) => {
-  if (req.session && req.session.userId) {
-    next();
-  } else {
-    res.redirect('/login');
-  }
-};
-
-app.get('/login', (req, res) => {
-  res.sendFile(path.join(__dirname, 'views', 'login.html'));
-});
-
-app.post('/login', async (req, res) => {
-  const { username, password } = req.body;
-  const admin = await Admin.findOne({ username });
-
-  if (admin && bcrypt.compareSync(password, admin.password)) {
-    req.session.userId = admin._id;
-    res.redirect('/admin');
-  } else {
-    res.status(401).send('Invalid credentials');
-  }
-});
-
-app.get('/logout', (req, res) => {
-  req.session.destroy();
-  res.redirect('/login');
-});
-
-app.get('/admin', requireLogin, (req, res) => {
+// Admin routes (no login required)
+app.get('/admin', (req, res) => {
   res.sendFile(path.join(__dirname, 'views', 'admin.html'));
 });
 
-app.post('/admin/add-car', requireLogin, upload.single('carImage'), async (req, res) => {
+app.post('/admin/add-car', upload.single('carImage'), async (req, res) => {
   const { carCompany, carModel, carYear, carFuelType, carSeater } = req.body;
   const carImage = `/uploads/${req.file.filename}`;
 
@@ -110,7 +80,7 @@ app.post('/admin/add-car', requireLogin, upload.single('carImage'), async (req, 
   }
 });
 
-app.get('/admin/cars', requireLogin, async (req, res) => {
+app.get('/admin/cars', async (req, res) => {
   try {
     const cars = await Car.find();
     res.json(cars);
@@ -119,7 +89,7 @@ app.get('/admin/cars', requireLogin, async (req, res) => {
   }
 });
 
-app.patch('/admin/update-car-status/:id', requireLogin, async (req, res) => {
+app.patch('/admin/update-car-status/:id', async (req, res) => {
   try {
     const { id } = req.params;
     const { carStatus } = req.body;
@@ -140,11 +110,11 @@ app.patch('/admin/update-car-status/:id', requireLogin, async (req, res) => {
   }
 });
 
-app.get('/admin/pending-bookings', requireLogin, (req, res) => {
+app.get('/admin/pending-bookings', (req, res) => {
   res.sendFile(path.join(__dirname, 'views', 'pending-bookings.html'));
 });
 
-app.get('/admin/pending-bookings/data', requireLogin, async (req, res) => {
+app.get('/admin/pending-bookings/data', async (req, res) => {
   try {
     const bookings = await Booking.find({ status: 'pending' });
     res.json(bookings);
@@ -153,11 +123,11 @@ app.get('/admin/pending-bookings/data', requireLogin, async (req, res) => {
   }
 });
 
-app.get('/admin/pending-complaints', requireLogin, (req, res) => {
+app.get('/admin/pending-complaints', (req, res) => {
   res.sendFile(path.join(__dirname, 'views', 'pending-complaints.html'));
 });
 
-app.get('/admin/pending-complaints/data', requireLogin, async (req, res) => {
+app.get('/admin/pending-complaints/data', async (req, res) => {
   try {
     const complaints = await Contact.find();
     res.json(complaints);
@@ -167,7 +137,7 @@ app.get('/admin/pending-complaints/data', requireLogin, async (req, res) => {
   }
 });
 
-app.patch('/admin/update-complaint-status/:id', requireLogin, async (req, res) => {
+app.patch('/admin/update-complaint-status/:id', async (req, res) => {
   try {
     const { id } = req.params;
     const { status } = req.body;
@@ -214,17 +184,17 @@ app.post('/contact', async (req, res) => {
 
   try {
     await newContact.save();
-    res.send('sends complant');
+    res.send('sends complaint');
   } catch (err) {
     res.status(500).send('Error saving contact');
   }
 });
 
-app.get('/admin/upload-car-picture', requireLogin, (req, res) => {
+app.get('/admin/upload-car-picture', (req, res) => {
   res.sendFile(path.join(__dirname, 'views', 'upload-car-picture.html'));
 });
 
-app.post('/admin/upload-car-picture', requireLogin, upload.single('carPicture'), (req, res) => {
+app.post('/admin/upload-car-picture', upload.single('carPicture'), (req, res) => {
   res.send('File uploaded successfully');
 });
 
