@@ -17,8 +17,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // MongoDB connection
 mongoose.connect(process.env.MONGODB_URL, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
+  // useNewUrlParser: true,
+  // useUnifiedTopology: true
 });
 
 const db = mongoose.connection;
@@ -36,7 +36,7 @@ const Admin = require('./models/Admin');
 
 // Session setup
 app.use(session({
-  secret: process.env.SECRET_KEY,
+  secret: process.env.SECRET_KEY || 'your-default-secret-key',
   resave: false,
   saveUninitialized: true,
   cookie: { secure: false } // Set to true in production
@@ -66,11 +66,23 @@ app.get('/login', (req, res) => {
   res.sendFile(path.join(__dirname, 'views', 'login.html'));
 });
 
+// Hardcoded credentials
+const ADMIN_USERNAME = 'Admin';
+const ADMIN_PASSWORD = 'Asus@1234';
+
 app.post('/login', async (req, res) => {
   const { username, password } = req.body;
-  const admin = await Admin.findOne({ username });
 
-  if (admin && admin.password === password) { // No bcrypt comparison
+  if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+    // Find the admin document (you can adjust this part based on your actual logic)
+    let admin = await Admin.findOne({ username: ADMIN_USERNAME });
+    
+    if (!admin) {
+      // Create an admin document if it doesn't exist
+      admin = new Admin({ username: ADMIN_USERNAME, password: ADMIN_PASSWORD });
+      await admin.save();
+    }
+
     req.session.userId = admin._id;
     res.redirect('/admin');
   } else {
@@ -213,7 +225,7 @@ app.post('/contact', async (req, res) => {
 
   try {
     await newContact.save();
-    res.send('sends complant');
+    res.send('sends complaint');
   } catch (err) {
     res.status(500).send('Error saving contact');
   }
