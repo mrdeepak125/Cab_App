@@ -5,6 +5,7 @@ const multer = require('multer');
 const path = require('path');
 const session = require('express-session');
 const bcrypt = require('bcrypt');
+require('dotenv').config();
 
 const app = express();
 
@@ -16,7 +17,7 @@ app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
 // MongoDB connection
-mongoose.connect('mongodb://localhost:27017/cabBookingDB', {
+mongoose.connect(process.env.MONGODB_URL, {
   useNewUrlParser: true,
   useUnifiedTopology: true
 });
@@ -36,7 +37,7 @@ const Admin = require('./models/Admin');
 
 // Session setup
 app.use(session({
-  secret: 'your_secret_key',
+  secret: process.env.SECRET_KEY,
   resave: false,
   saveUninitialized: true,
   cookie: { secure: false } // Set to true in production
@@ -242,4 +243,10 @@ app.get('/', (req, res) => {
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
+});
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).send('Something broke!');
 });
