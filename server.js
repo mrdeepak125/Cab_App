@@ -1,9 +1,9 @@
 const express = require('express');
-const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const multer = require('multer');
 const path = require('path');
 const session = require('express-session');
+const mongoose = require('mongoose');
 require('dotenv').config();
 
 const app = express();
@@ -11,22 +11,19 @@ const app = express();
 // Middleware
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
-
-// Serve static files
 app.use(express.static(path.join(__dirname, 'public')));
 
 // MongoDB connection
-mongoose.connect(process.env.MONGODB_URL, {
+const uri = "mongodb+srv://deepakpuri9190:uOKrMy5jazB4knpy@cluster0.rvatrtj.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
+
+mongoose.connect(uri, {
   useNewUrlParser: true,
-  useUnifiedTopology: true
-});
-
-const db = mongoose.connection;
-
-db.on('error', console.error.bind(console, 'connection error:'));
-db.once('open', function() {
-  console.log('Connected to MongoDB');
-});
+  useUnifiedTopology: true,
+  serverSelectionTimeoutMS: 30000, // 30 seconds
+  socketTimeoutMS: 45000, // 45 seconds
+})
+.then(() => console.log('MongoDB connected'))
+.catch(err => console.error('Connection error:', err));
 
 // Import models
 const Booking = require('./models/Booking');
@@ -66,27 +63,22 @@ app.get('/login', (req, res) => {
   res.sendFile(path.join(__dirname, 'views', 'login.html'));
 });
 
-// Hardcoded credentials
-const ADMIN_USERNAME = 'Admin';
-const ADMIN_PASSWORD = 'Asus@1234';
-
 app.post('/login', async (req, res) => {
   const { username, password } = req.body;
-
-  if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
-    // Find the admin document (you can adjust this part based on your actual logic)
-    let admin = await Admin.findOne({ username: ADMIN_USERNAME });
-    
+  try {
+    const admin = await Admin.findOne({ username });
     if (!admin) {
-      // Create an admin document if it doesn't exist
-      admin = new Admin({ username: ADMIN_USERNAME, password: ADMIN_PASSWORD });
-      await admin.save();
+      return res.status(401).send('Invalid credentials');
     }
-
+    const isMatch = await admin.comparePassword(password);
+    if (!isMatch) {
+      return res.status(401).send('Invalid credentials');
+    }
     req.session.userId = admin._id;
     res.redirect('/admin');
-  } else {
-    res.status(401).send('Invalid credentials');
+  } catch (err) {
+    console.error('Login error:', err);
+    res.status(500).send('Internal server error');
   }
 });
 
@@ -110,7 +102,7 @@ app.post('/admin/add-car', requireLogin, upload.single('carImage'), async (req, 
     carFuelType,
     carSeater,
     carImage,
-    carStatus: 'not-available' // default status
+    carStatus: 'not-available'
   });
 
   try {
@@ -135,11 +127,7 @@ app.patch('/admin/update-car-status/:id', requireLogin, async (req, res) => {
     const { id } = req.params;
     const { carStatus } = req.body;
 
-    const updatedCar = await Car.findByIdAndUpdate(
-      id,
-      { carStatus },
-      { new: true }
-    );
+    const updatedCar = await Car.findByIdAndUpdate(id, { carStatus }, { new: true });
 
     if (updatedCar) {
       res.send('Car status updated successfully');
@@ -183,11 +171,7 @@ app.patch('/admin/update-complaint-status/:id', requireLogin, async (req, res) =
     const { id } = req.params;
     const { status } = req.body;
 
-    const updatedContact = await Contact.findByIdAndUpdate(
-      id,
-      { status },
-      { new: true }
-    );
+    const updatedContact = await Contact.findByIdAndUpdate(id, { status }, { new: true });
 
     if (updatedContact) {
       res.send('Complaint status updated successfully');
@@ -225,7 +209,7 @@ app.post('/contact', async (req, res) => {
 
   try {
     await newContact.save();
-    res.send('sends complaint');
+    res.send('Complaint sent successfully');
   } catch (err) {
     res.status(500).send('Error saving contact');
   }

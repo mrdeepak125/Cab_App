@@ -3,9 +3,22 @@
 <head>
   <meta charset="UTF-8">
   <title>Upload Car Picture</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="/style.css">
 </head>
 <body>
+  <header>
+    <nav class="nav">
+        <i class="uil uil-bars navOpenBtn"></i>
+        <a href="#" class="logo"><img src="/img/taxi/240_F_330115718_1k76oiECn62QjtimmXHsEjjgEnJKBK73-removebg-preview.png" style="height: 80px;"><span>App name</span></a>
+        <ul class="nav-links">
+            <li><a href="/admin">Admin Dashboard</a></li>
+            <li><a href="/admin/pending-bookings">Pending Bookings</a></li>
+            <li><a href="/admin/pending-complaints">Pending Complaints</a></li>
+            <li><a href="/admin/upload-car-picture">Upload Car Picture</a></li>
+            <li><a href="/logout">logout</a></li>
+        </ul>
+    <nav>
+</header>
   <h1>Upload Car Picture</h1>
   <form action="/admin/upload-car-picture" method="post" enctype="multipart/form-data">
     <input type="file" name="carPicture" required>
